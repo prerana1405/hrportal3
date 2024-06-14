@@ -28,14 +28,14 @@ export const uploadFileToCloudinary = async (file, empid) => {
   }
 };
 
-export const deleteFileFromCloudinary=async(empid)=>{
+export const deleteFileFromCloudinary=async(_id)=>{
    
-    if (!empid) {
+    if (!_id) {
         throw new Error('Invalid parameter');
       }
     
       try {
-        const file = await File.findOne({ empid: empid });
+        const file = await File.findOne({ _id :_id });
     
         if (!file) {
           throw new Error('file not found');
@@ -43,7 +43,7 @@ export const deleteFileFromCloudinary=async(empid)=>{
     
         await cloudinary.uploader.destroy(file.cloudinary_id);
     
-        await File.deleteOne({ empid: empid });
+        await File.deleteOne({ _id: _id });
     
         return { message: 'file deleted successfully' };
       } catch (error) {
@@ -52,3 +52,18 @@ export const deleteFileFromCloudinary=async(empid)=>{
       }
 }
 
+export const retrieveFiles=async(empid)=>{
+  if (!empid) {
+    throw new Error('Invalid parameters: empid is required');
+}
+try {
+    const files = await File.find({ empid: empid });
+    if (!files || files.length === 0) {
+        throw new Error('No files found for the given empid');
+    }
+    return files;
+} catch (error) {
+    console.error('Error retrieving files:', error.message);
+    throw new Error('Failed to retrieve files');
+}  
+}

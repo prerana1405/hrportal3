@@ -22,13 +22,7 @@ const validateUserData = (data) => {
     if (password.length < 6) {
         return { success: false, message: "Password must be at least 6 characters long" };
     }
-
-    // Validate mobile number format (e.g., using regex)
-    const mobileRegex = /^\d{10}$/; // Assuming mobile number is 10 digits
-    if (!mobileRegex.test(mobile_no)) {
-        return { success: false, message: "Invalid mobile number format" };
-    }
-
+    
     // If all validation checks pass, return success
     return { success: true, message: "Data is valid" };
 };

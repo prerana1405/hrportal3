@@ -1,33 +1,46 @@
-import {uploadImageOnCloudinary,deleteImageOnCloudinary} from '../service/imageService.js';
+import { uploadImage
+        ,deleteImage
+        ,getRecentImage
+ } from '../service/imageService.js';
 
-export const uploadImage=async(req,res)=>{
-    const {empid}=req.body;
-    try{
-        const image=req.file;
-        if(!image){
-            return res.status(400).json({message:'No image uploaded'});
-        }
-        if(!empid){
-            return res.status(400).json({message:'No empid uploaded'});
-        }
-        const uploadResult = await uploadImageOnCloudinary(image,empid);
-        res.status(201).json({message: 'Image uploaded successfully', image: uploadResult})
-    }catch(error){
-        console.error('Error uploading file:', error);
-        res.status(500).json({ message: 'Failed to upload image', error });
+ const uploadImageController = async (req, res) => {
+    try {  
+        const { empid } = req.body;
+        const image = req.file;
+       const Image = await uploadImage(empid,image);
+       return json(new ApiResponse(201, Image, "User Image successfully."));
+   } catch (error) {
+       return json(new ApiResponse(400, null, error.message));
+   }
+
+}
+
+const deleteImageController = async (req, res) => {
+    const { _id } = req.params;
+    console.log(_id);
+    try {
+        await deleteImage(_id);
+        res.json(new ApiResponse(200, null, 'Image deleted successfully'));
+    } catch (error) {
+        console.error('Error deleting image:', error.message);
+        res.json(new ApiResponse(500, null, error.message));
     }
 }
 
-export const deleteImage=async(req,res)=>{
-    const {empid}=req.query;
-    try{
-        if(!empid){
-            return res.status(400).json({message:'No empid found'});
-        }
-        const uploadResult = await deleteImageOnCloudinary(empid);
-        res.status(201).json({message: uploadResult})
-    }catch(error){
-        console.error('Error uploading file:', error);
-        res.status(500).json({ message: 'Failed to delete  image', error });
+
+const getRecentImageController = async (req, res) => {
+    const { empid } = req.params;
+    try {
+        const recentImages = await getRecentImage(empid);
+        res.json(new ApiResponse(200, recentImages, 'Recent images retrieved successfully'));
+    } catch (error) {
+        console.error('Error fetching recent images:', error);
+        res.json(new ApiResponse(500, null, 'Failed to retrieve recent images'));
     }
+};
+
+export {
+    uploadImageController,
+    deleteImageController,
+    getRecentImageController,
 }

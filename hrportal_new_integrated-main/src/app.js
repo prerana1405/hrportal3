@@ -17,12 +17,16 @@ app.use(cookieParser())
 //route import
 import userRouter from './routes/user.router.js';
 import fileRoutes from './routes/fileRoute.js';
-import imageRoutes from './routes/imageRoute.js';
-import multimageRoute from './routes/multimageRoute.js';
+import profilePicRouters from './routes/profilePicRoute.js';
+import imageRouters from './routes/imageRouter.js';
+import videoRouters from './routes/videoRouter.js';
+import audioRouters from './routes/audioRouter.js';
 //route decleration
 app.use("/api/v1/users",userRouter);
 app.use('/api/v1/file', fileRoutes);
-app.use('/api/v1/image', imageRoutes);
-app.use('/api/v1/multimage', multimageRoute);
+app.use('/api/v1/profile-image', profilePicRouters);
+app.use('/api/v1/image', imageRouters);
+app.use('/api/v1/video', videoRouters);
+app.use('/api/v1/audio', audioRouters);
 
 export default app;

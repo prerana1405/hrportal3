@@ -7,13 +7,13 @@ import { loginUser,
          updatePassword,
          sendVerificationMail
           } from '../service/userService.js';
-
+import { ApiError } from '../utils/apiError.js';
 
 
 const registerUserController = async (req, res) => {
     try {  
-        const newUser = await registerUser(req.body);
-        return res.status(201).json(new ApiResponse(201, null, "User registered successfully Please Verify Email"));
+         await registerUser(req.body);
+        return res.status(201).json(new ApiResponse(201, null, "User registered successfully."));
     } catch (error) {
         if (error.message.includes('Duplicate entry')) {
             return res.status(400).json(new ApiResponse(400, null, error.message));

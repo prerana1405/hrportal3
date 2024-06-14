@@ -1,55 +1,92 @@
-import Image from  '../models/image.models.js';
+import images from "../models/image.models.js";
 import cloudinary from '../utils/cloudinary.js';
 
-export const uploadImageOnCloudinary =async(image,empid)=>{
-    const imagename=image.originalname;
-    if(!image || !empid){
-        throw new Error('Invalid parameters');
+
+const uploadImage = async (empid, image) => {
+    const filename = image.originalname;
+    if (!empid || typeof empid !== 'string') {
+        throw new Error('Invalid or missing employee ID');
     }
-    try{
-        const uploadResult = await cloudinary.uploader.upload(image.path,{
-            folder: 'profile_images',
-            resource_type:"auto"
-        })
-        const newImage = await Image.create({
-            path: uploadResult.secure_url,
-            filename : imagename ,
+    if (!image || !image.path || !image.originalname) {
+        throw new Error('Invalid image parameters');
+    }
+
+    try {
+        const uploadImageOnCloudinary = await cloudinary.uploader.upload(image.path, {
+            folder: 'Images',
+            resource_type: "auto"
+        });
+
+        const newImage = new images({
+            path: uploadImageOnCloudinary.secure_url,
+            filename: filename,
             empid: empid,
-            uploadedAt: new Date(),
-            cloudinary_id: uploadResult.public_id
-        })
-        await newImage.save();
+            cloudinary_id: uploadImageOnCloudinary.public_id,
+            uploadedAt: new Date()
+        });
 
-        return newImage;
+        const savedImage = await newImage.save();
 
-    }catch(error){
-          console.log('Error uploading image Cloudenery:',error);
-          throw new Error('Failed to upload image');
-    }
-}
-
-
-export const deleteImageOnCloudinary=async(empid)=>{
-   
-    if (!empid) {
-        throw new Error('Invalid parameter');
-      }
-    
-      try {
-        const image = await Image.findOne({ empid: empid });
-    
-        if (!image) {
-          throw new Error('Image not found');
+        if (!savedImage || !savedImage._id) {
+            throw new Error('Failed to save the image');
         }
-    
-        await cloudinary.uploader.destroy(image.cloudinary_id);
-    
-        await Image.deleteOne({ empid: empid });
-    
-        return { message: 'Image deleted successfully' };
-      } catch (error) {
-        console.error('Error deleting image from Cloudinary and database:', error);
-        throw new Error('Failed to delete image');
-      }
+
+        const data = {
+            empid: empid,
+            image: {
+                _id: savedImage._id,
+                originalname: filename,
+                path: uploadImageOnCloudinary.secure_url,
+            }
+        };
+        return data;
+    } catch (error) {
+        console.error('Error uploading  to Cloudinary:', error.message);
+        throw new Error('Image upload failed');
+    }
+};
+
+
+const deleteImage = async (_id) => {
+    if (!_id) {
+        throw new Error('Invalid parameter');
+    }
+
+    const image = await images.findOne({ _id: _id });
+    if (!image) {
+        throw new Error('Image not found');
+    }
+
+    const deleteImageFromCloudinary = await cloudinary.uploader.destroy(image.cloudinary_id);
+    if (!deleteImageFromCloudinary) {
+        throw new Error('Failed to delete image from Cloudinary');
+    }
+
+    const deletedImage = await images.deleteOne({ _id: _id });
+    if (!deletedImage) {
+        throw new Error('Failed to delete image from database');
+    }
+     console('Image deleted successfully');
+    return;
 }
 
+
+const getRecentImage = async (empid,limit = 6) => {
+    try {
+      const recentImages = await images.find({ empid })
+        .sort({ uploadedAt: -1 }) 
+        .limit(limit); 
+      console.log(recentImages);
+      return recentImages;
+    } catch (error) {
+      console.error('Error retrieving recent images from the database:', error.message);
+      throw new Error('Failed to retrieve recent images');
+    }
+  };
+
+
+export {
+    uploadImage,
+    deleteImage,
+    getRecentImage
+}

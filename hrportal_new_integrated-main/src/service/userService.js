@@ -26,7 +26,6 @@ const registerUser = async (userData) => {
     if(newUser === null){
         return newUser;
     }else{
-        // await sendVerificationMail(userData);
         return newUser;
     }
 
@@ -59,14 +58,15 @@ const verifyEmailToken = async (email_token, email) => {
         const user = await findUserByEmail(email);
         if (user && user.email_token === email_token) {
               await updateUserVerification(user.id);
+              const user2 = await findUserByEmail(email);
               const userToSend = {
-                id: user.id,
-                fname: user.fname,
-                lname: user.lname,
-                email: user.email,
-                empid: user.empid,
-                mobile_no:user.mobile_no,
-                is_verified: user.is_verified
+                id: user2.id,
+                fname: user2.fname,
+                lname: user2.lname,
+                email: user2.email,
+                empid: user2.empid,
+                mobile_no:user2.mobile_no,
+                is_verified: user2.is_verified
             };
         return  userToSend;
         } else {

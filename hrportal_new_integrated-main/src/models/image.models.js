@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const imageSchema = new mongoose.Schema({
+const imagesSchema = new mongoose.Schema({
   path: {
     type: String,
     required: true,
@@ -13,16 +13,16 @@ const imageSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  cloudinary_id: { 
+    type: String, 
+    required: true 
+  },
   uploadedAt: {
     type: Date,
     default: Date.now,
   },
-  cloudinary_id: { 
-    type: String, 
-    required: true 
-  }
 });
 
-const Image = mongoose.model('Image', imageSchema);
+const images = mongoose.model('images', imagesSchema);
 
-export default Image;
+export default images;
