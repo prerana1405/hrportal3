@@ -1,21 +1,21 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const fileSchema = new mongoose.Schema({
   path: {
     type: String,
     required: true,
   },
-  filename : {
-    type :String,
+  filename: {
+    type: String,
     required: true
   },
   empid: {
     type: String,
     required: true,
   },
-  cloudinary_id: { 
-    type: String, 
-    required: true 
+  cloudinary_id: {
+    type: String,
+    required: true
   },
   uploadedAt: {
     type: Date,
@@ -25,4 +25,4 @@ const fileSchema = new mongoose.Schema({
 
 const File = mongoose.model('File', fileSchema);
 
-export default File;
+module.exports = File;

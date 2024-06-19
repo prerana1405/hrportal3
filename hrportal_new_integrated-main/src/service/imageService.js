@@ -1,6 +1,5 @@
-import images from "../models/image.models.js";
-import cloudinary from '../utils/cloudinary.js';
-
+const images = require("../models/image.models.js");
+const cloudinary = require('../utils/cloudinary.js');
 
 const uploadImage = async (empid, image) => {
     const filename = image.originalname;
@@ -39,9 +38,12 @@ const uploadImage = async (empid, image) => {
                 path: uploadImageOnCloudinary.secure_url,
             }
         };
+
+        console.log('Image Uploaded Successfully');
         return data;
+
     } catch (error) {
-        console.error('Error uploading  to Cloudinary:', error.message);
+        console.error('Error uploading image to Cloudinary:', error.message);
         throw new Error('Image upload failed');
     }
 };
@@ -57,6 +59,7 @@ const deleteImage = async (_id) => {
         throw new Error('Image not found');
     }
 
+    console.log(image);
     const deleteImageFromCloudinary = await cloudinary.uploader.destroy(image.cloudinary_id);
     if (!deleteImageFromCloudinary) {
         throw new Error('Failed to delete image from Cloudinary');
@@ -66,27 +69,27 @@ const deleteImage = async (_id) => {
     if (!deletedImage) {
         throw new Error('Failed to delete image from database');
     }
-     console('Image deleted successfully');
+
+    console.log('Image deleted successfully');
     return;
-}
+};
 
 
-const getRecentImage = async (empid,limit = 6) => {
+const getRecentImage = async (empid, limit = 6) => {
     try {
-      const recentImages = await images.find({ empid })
-        .sort({ uploadedAt: -1 }) 
-        .limit(limit); 
-      console.log(recentImages);
-      return recentImages;
+        const recentImages = await images.find({ empid })
+            .sort({ uploadedAt: -1 })
+            .limit(limit);
+        console.log(recentImages);
+        return recentImages;
     } catch (error) {
-      console.error('Error retrieving recent images from the database:', error.message);
-      throw new Error('Failed to retrieve recent images');
+        console.error('Error retrieving recent images from the database:', error.message);
+        throw new Error('Failed to retrieve recent images');
     }
-  };
+};
 
-
-export {
+module.exports = {
     uploadImage,
     deleteImage,
     getRecentImage
-}
+};

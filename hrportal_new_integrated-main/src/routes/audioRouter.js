@@ -1,12 +1,15 @@
-import express from 'express';
-import {uploadAudio} from '../middleware/multer.middleware.js';
-import {uploadAudioController,getAudiosController} from '../controllers/audioController.js';
-
-
+const express = require("express");
+const { uploadAudio } = require("../middleware/multer.middleware.js");
+const {
+  uploadAudioController,
+  getAudiosController,
+  deleteAudioController,
+} = require("../controllers/audioController.js");
 
 const router = express.Router();
 
-router.post('/upload', uploadAudio.single('audio'),uploadAudioController);
-router.get('/recent-audios/:empid', getAudiosController);
+router.post("/upload", uploadAudio.single("audio"), uploadAudioController);
+router.delete("/delete-audio/:_id", deleteAudioController);
+router.get("/recent-audios/:empid", getAudiosController);
 
-export default router;
+module.exports = router;

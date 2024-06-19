@@ -27,4 +27,5 @@ const validateUserData = (data) => {
     return { success: true, message: "Data is valid" };
 };
 
-export default validateUserData;
+module.exports = validateUserData;
+

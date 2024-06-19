@@ -1,21 +1,21 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const imagesSchema = new mongoose.Schema({
   path: {
     type: String,
     required: true,
   },
-  filename : {
-    type :String,
+  filename: {
+    type: String,
     required: true
   },
   empid: {
     type: String,
     required: true,
   },
-  cloudinary_id: { 
-    type: String, 
-    required: true 
+  cloudinary_id: {
+    type: String,
+    required: true
   },
   uploadedAt: {
     type: Date,
@@ -23,6 +23,6 @@ const imagesSchema = new mongoose.Schema({
   },
 });
 
-const images = mongoose.model('images', imagesSchema);
+const Images = mongoose.model('images', imagesSchema);
 
-export default images;
+module.exports = Images;

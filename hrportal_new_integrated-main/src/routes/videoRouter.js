@@ -1,15 +1,14 @@
-import express from 'express';
-import {uploadVideo} from '../middleware/multer.middleware.js';
-import { uploadVideoController
-       ,deleteVideoController,
-       getVideosController
-    } from '../controllers/videoController.js';
-
-
+const express = require("express");
+const { uploadVideo } = require("../middleware/multer.middleware.js");
+const {
+  uploadVideoController,
+  deleteVideoController,
+  getVideosController,
+} = require("../controllers/videoController.js");
 
 const router = express.Router();
 
-router.post('/upload', uploadVideo.single('video'),uploadVideoController);
-router.get('/recent-videos/:empid', getVideosController);
-router.delete('/delete/:_id',  deleteVideoController);
-export default router;
+router.post("/upload", uploadVideo.single("video"), uploadVideoController);
+router.get("/recent-videos/:empid", getVideosController);
+router.delete("/delete-video/:_id", deleteVideoController);
+module.exports = router;

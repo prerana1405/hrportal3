@@ -1,13 +1,17 @@
-import {upload} from '../middleware/multer.middleware.js';
-import express from 'express';
-import {uploadMultiImageController,deleteMultiImageController,getImagesController
-        ,getProfilePictureController
-} from '../controllers/profilePicController.js';
+const express = require("express");
+const { uploadImage } = require("../middleware/multer.middleware.js");
+const {
+  uploadMultiImageController,
+  deleteMultiImageController,
+  getImagesController,
+  getProfilePictureController,
+} = require("../controllers/profilePicController.js");
 
 const router = express.Router();
 
-router.post('/upload', upload.single('image'), uploadMultiImageController);//upload& fetch
-router.get('/recent-images/:empid', getImagesController);
-router.get('/:empid', getProfilePictureController);  
-router.delete('/delete-image/:empid', deleteMultiImageController); 
-export default router;
+router.post("/upload", uploadImage.single("image"), uploadMultiImageController);
+router.get("/recent-images/:empid", getImagesController);
+router.get("/:empid", getProfilePictureController);
+router.delete("/delete-image/:empid", deleteMultiImageController);
+
+module.exports = router;

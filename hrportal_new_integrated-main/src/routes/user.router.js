@@ -1,25 +1,26 @@
-import {Router } from 'express';
-import { loginUserController,
-        registerUserController,
-        updatePasswordController,
-        updateProfileController,
-        verifyEmailTokenController,
-        sendVerificationMailController
-} from '../controllers/user.controller.js';
-
-
-
+const { Router } = require("express");
+const {
+  loginUserController,
+  registerUserController,
+  updatePasswordController,
+  updateProfileController,
+  verifyEmailTokenController,
+  sendVerificationMailController,
+  sendPasswordMailController,
+  resetPasswordController,
+} = require("../controllers/user.controller.js");
+const auth = require("../middleware/auth.middleware.js");
 const router = Router();
 
-router.route("/register").post(registerUserController);
+router.post("/register", registerUserController);
 
-router.route('/sendMail').post(sendVerificationMailController);
-router.route('/verify-email').post(verifyEmailTokenController);
+router.post("/sendMail", auth, sendVerificationMailController);
+router.post("/verify-email", verifyEmailTokenController);
 
+router.post("/login", loginUserController);
+router.patch("/updateUserDetail", updateProfileController);
+router.patch("/updatePassword", updatePasswordController);
 
-router.route("/login").post(loginUserController);
-router.route('/updateUserDetail').patch(updateProfileController);
-router.route('/updatePassword').patch(updatePasswordController)
-
-
-export default  router;
+router.post("/forgot-password", sendPasswordMailController);
+router.post("/reset-password", resetPasswordController);
+module.exports = router;
