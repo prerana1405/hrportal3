@@ -1,34 +1,61 @@
 const jwt = require("jsonwebtoken");
 const ApiResponse = require("../utils/apiResponse");
-//const secretKey = "UJK@123";
+const ApiError = require("../utils/apiError");
+const {
+  generateAccessAndRefreshTokens,
+} = require("../utils/generateJwtToken.js");
+const { findUserById, findUserByEmpId } = require("../models/user.models.js");
 
-const auth = (req, res, next) => {
-  // Get token from the Authorization header
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res
-      .status(403)
-      .json(new ApiResponse(403, null, "Please login first"));
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  if (!token) {
-    return res
-      .status(403)
-      .json(new ApiResponse(403, null, "Please login first"));
-  }
-
+const verifyJWT = async (req, res, next) => {
   try {
-    const decode = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decode);
-    // req.user = decode;
+    const token = req.cookies?.accessToken || req.headers["x-access-token"];
+
+    // req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      throw new ApiError(401, "Unauthorized request");
+    }
+
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+    const user = await findUserById(decodedToken?.id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid Access Token");
+    }
+
+    // Ensure sensitive fields like password and refreshToken are not exposed here
+    delete user.password;
+    delete user.refreshToken;
+
+    req.user = user;
     next();
   } catch (error) {
-    console.log(error);
-    return res.status(401).json(new ApiResponse(401, null, "Invalid Token"));
+    next(new ApiError(401, error?.message || "Invalid access token"));
   }
 };
+const verifyAndRefreshToken = async (incomingRefreshToken) => {
+  const decodedToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+  console.log(decodedToken);
+  const user = await findUserByEmpId(decodedToken.empid);
+  console.log(user);
 
-module.exports = auth;
+  if (!user) {
+    throw new ApiError(401, "Invalid refresh token");
+  }
+
+  if (incomingRefreshToken !== user.refresh_token) {
+    throw new ApiError(401, "Refresh token is expired or used");
+  }
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+    user.id
+  );
+
+  return { accessToken, refreshToken };
+};
+
+module.exports = { verifyJWT, verifyAndRefreshToken };

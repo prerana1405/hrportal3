@@ -1,5 +1,6 @@
 const mysql = require("mysql2");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const dotenv = require("dotenv");
 
@@ -199,13 +200,53 @@ const ResetUserPassword = (email, newPassword) => {
     });
   });
 };
+
+// Function to update user's refresh token
+const updateUserRefreshToken = (userId, refreshToken) => {
+  return new Promise((resolve, reject) => {
+    const query = "UPDATE users SET refresh_token = ? WHERE id = ?";
+    connection.query(query, [refreshToken, userId], (error, results) => {
+      if (error) {
+        console.error("Error while executing query:", error);
+        reject(error);
+        return;
+      }
+      resolve(results);
+    });
+  });
+};
+
+const findUserByEmpId = (empid) => {
+  return new Promise((resolve, reject) => {
+    const query = "SELECT * FROM users WHERE empid = ?";
+    connection.query(query, [empid], (error, result) => {
+      if (error) {
+        console.error("Error while executing query:", error);
+        reject(error);
+        return;
+      }
+      if (result.length > 0) {
+        console.log("User found:", result[0]);
+        resolve(result[0]);
+      } else {
+        console.log("User not found");
+        resolve(null);
+      }
+    });
+  });
+};
+
+module.exports = { findUserByEmpId };
+
 module.exports = {
   findUser,
   signupUser,
   findUserByEmail,
   findUserById,
+  findUserByEmpId,
   updateUserVerification,
   updateUserDetails,
   UpdateUserPassword,
   ResetUserPassword,
+  updateUserRefreshToken,
 };

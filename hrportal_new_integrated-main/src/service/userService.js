@@ -7,10 +7,12 @@ const {
   UpdateUserPassword,
   findUserById,
 } = require("../models/user.models.js");
-const { sendMail } = require("../utils/sendEmail.js");
+const { sendMail, sendPasswordMail } = require("../utils/sendEmail.js");
 const validateUserData = require("../utils/user.validation.js");
 const bcrypt = require("bcrypt");
-const generateJwtToken = require("../utils/generateJwtToken.js");
+const {
+  generateAccessAndRefreshTokens,
+} = require("../utils/generateJwtToken.js");
 const registerUser = async (userData) => {
   const { fname, lname, email, empid, password, mobile_no } = userData;
   const validationResult = validateUserData({
@@ -92,7 +94,9 @@ const loginUser = async (email, password) => {
   if (!user) {
     throw new Error("User not found or invalid credentials");
   }
-
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+    user.id
+  );
   const userToSend = {
     id: user.id,
     fname: user.fname,
@@ -101,15 +105,10 @@ const loginUser = async (email, password) => {
     empid: user.empid,
     mobile_no: user.mobile_no,
     is_verified: user.is_verified,
+    refresh_token: refreshToken,
   };
-  const payload = {
-    user: {
-      id: user.empid,
-    },
-  };
-  const token = await generateJwtToken(payload);
-  console.log("token=" + token);
-  return { token, user: userToSend };
+
+  return { accessToken, refreshToken, user: userToSend };
 };
 
 const updateProfile = async (id, fname, lname, mobile_no) => {
